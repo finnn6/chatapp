@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Galmuri 픽셀 폰트는 index.html <link>로 로드됨 */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Galmuri11', 'Apple SD Gothic Neo', sans-serif;
+    --font-mono: 'GalmuriMono11', monospace;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    /* 픽셀 커스텀 팔레트 */
+    --color-pixel-mint: var(--pixel-mint);
+    --color-pixel-cyan: var(--pixel-cyan);
+    --color-pixel-pink: var(--pixel-pink);
+    --color-pixel-yellow: var(--pixel-yellow);
+    --color-pixel-panel: var(--pixel-panel);
+    /* 모서리 전부 각지게 (도트풍) */
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+    --radius-4xl: 0px;
+}
+
+/* 라이트 픽셀 팔레트 — 흰 배경 + 검정 포인트 */
+:root {
+    --background: #ffffff;
+    --foreground: #171717;
+    --card: #ffffff;
+    --card-foreground: #171717;
+    --popover: #ffffff;
+    --popover-foreground: #171717;
+    --primary: #171717;
+    --primary-foreground: #ffffff;
+    --secondary: #f2f2f2;
+    --secondary-foreground: #171717;
+    --muted: #f0f0f0;
+    --muted-foreground: #6e6e6e;
+    --accent: #ececec;
+    --accent-foreground: #171717;
+    --destructive: #d64545;
+    --border: #171717;
+    --input: #cfcfcf;
+    --ring: #171717;
+    --chart-1: #171717;
+    --chart-2: #2e7d32;
+    --chart-3: #d64545;
+    --chart-4: #8a6a00;
+    --chart-5: #555555;
+    --radius: 0px;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #171717;
+    --sidebar-primary: #171717;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #ececec;
+    --sidebar-accent-foreground: #171717;
+    --sidebar-border: #171717;
+    --sidebar-ring: #171717;
+
+    /* 픽셀 액센트 (라이트) */
+    --pixel-mint: #171717;   /* 포인트 = 검정 */
+    --pixel-cyan: #2e7d32;   /* 관심사 = 어두운 초록 */
+    --pixel-pink: #d64545;   /* 안읽음 표시 = 빨강 */
+    --pixel-yellow: #8a6a00; /* 상태/대기 = 어두운 앰버 */
+    --pixel-panel: #f7f7f7;
+    --pixel-shadow: rgba(0, 0, 0, 0.28);
+}
+
+.dark {
+    --background: #ffffff;
+    --foreground: #171717;
+    --card: #ffffff;
+    --card-foreground: #171717;
+    --popover: #ffffff;
+    --popover-foreground: #171717;
+    --primary: #171717;
+    --primary-foreground: #ffffff;
+    --secondary: #f2f2f2;
+    --secondary-foreground: #171717;
+    --muted: #f0f0f0;
+    --muted-foreground: #6e6e6e;
+    --accent: #ececec;
+    --accent-foreground: #171717;
+    --destructive: #d64545;
+    --border: #171717;
+    --input: #cfcfcf;
+    --ring: #171717;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #171717;
+    --sidebar-primary: #171717;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #ececec;
+    --sidebar-accent-foreground: #171717;
+    --sidebar-border: #171717;
+    --sidebar-ring: #171717;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Galmuri11', 'Apple SD Gothic Neo', sans-serif;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* 픽셀 아트: 이미지 확대 시 도트가 뭉개지지 않게 */
+  img {
+    image-rendering: pixelated;
+  }
+  /* 스크롤바도 각지게 */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--pixel-mint);
+  }
+}
+
+@layer components {
+  /* 딱딱한 픽셀 테두리 + 하드 그림자 */
+  .pixel-box {
+    border: 2px solid var(--border);
+    box-shadow: 4px 4px 0 0 var(--pixel-shadow);
+  }
+  .pixel-box-sm {
+    border: 2px solid var(--border);
+    box-shadow: 2px 2px 0 0 var(--pixel-shadow);
+  }
+  /* 강조용: 민트 테두리 */
+  .pixel-box-accent {
+    border: 2px solid var(--pixel-mint);
+    box-shadow: 4px 4px 0 0 var(--pixel-shadow);
+  }
+  /* 눌린 느낌 인셋 (입력창 등) */
+  .pixel-inset {
+    border: 2px solid var(--border);
+    box-shadow: inset 2px 2px 0 0 rgba(0, 0, 0, 0.4);
+  }
+}

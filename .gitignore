@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.*
+dist/
+dist-check/
+build-verify-*/
+build/
+release/
+out/
+.DS_Store
+*.log
