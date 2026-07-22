@@ -243,5 +243,3 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`🚀 서버 실행 중: http://localhost:${PORT}`);
 });
-
-//몽고db 아이디 비번: dbAdmin, dbAdminPwd
