@@ -45,13 +45,16 @@ const FriendItem = ({ friend, onDoubleClick }) => (
   </div>
 )
 
-const FriendGroup = ({ label, friends, onDoubleClick }) => {
+const FriendGroup = ({ label, friends, onDoubleClick, forceOpen = false }) => {
   const [open, setOpen] = useState(true)
 
+  // 검색 중에는 접혀 있어도 결과가 보이도록 강제로 펼침
+  const isOpen = forceOpen || open
+
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
+    <Collapsible open={isOpen} onOpenChange={setOpen}>
       <CollapsibleTrigger className="flex items-center gap-1 px-3 py-1 text-xs text-pixel-mint hover:bg-muted w-full uppercase tracking-wider">
-        {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        {isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         {label} ({friends.length})
       </CollapsibleTrigger>
       <CollapsibleContent>
@@ -63,7 +66,7 @@ const FriendGroup = ({ label, friends, onDoubleClick }) => {
   )
 }
 
-const FriendList = () => {
+const FriendList = ({ query = '' }) => {
   const [friends, setFriends] = useState([])
   const { onlineUsers } = useSocket()
   const STATUS_LABEL = {
@@ -122,15 +125,43 @@ const FriendList = () => {
     status: onlineUsers[f._id] ?? f.status
   }))
 
-  const online = friendsWithStatus.filter(f => f.status === 'online')
-  const away = friendsWithStatus.filter(f => f.status === 'away')
-  const offline = friendsWithStatus.filter(f => f.status === 'offline')
+  // 닉네임 · 한마디 · 관심사 태그로 검색
+  const q = query.trim().toLowerCase()
+  const matches = (f) => {
+    if (!q) return true
+    return (
+      (f.username || '').toLowerCase().includes(q) ||
+      (f.statusMessage || '').toLowerCase().includes(q) ||
+      (f.interests || []).some(tag => tag.toLowerCase().includes(q))
+    )
+  }
+
+  const visible = friendsWithStatus.filter(matches)
+  const online = visible.filter(f => f.status === 'online')
+  const away = visible.filter(f => f.status === 'away')
+  const offline = visible.filter(f => f.status === 'offline')
+
+  const searching = q.length > 0
+
+  if (searching && visible.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+        <p className="text-xs">'{query}' 검색 결과가 없습니다</p>
+      </div>
+    )
+  }
 
   return (
     <div className="py-2">
-      <FriendGroup label={STATUS_LABEL['online']} friends={online} onDoubleClick={handleDoubleClick} />
-      <FriendGroup label={STATUS_LABEL['away']} friends={away} onDoubleClick={handleDoubleClick} />
-      <FriendGroup label={STATUS_LABEL['offline']} friends={offline} onDoubleClick={handleDoubleClick} />
+      {(!searching || online.length > 0) && (
+        <FriendGroup label={STATUS_LABEL['online']} friends={online} onDoubleClick={handleDoubleClick} forceOpen={searching} />
+      )}
+      {(!searching || away.length > 0) && (
+        <FriendGroup label={STATUS_LABEL['away']} friends={away} onDoubleClick={handleDoubleClick} forceOpen={searching} />
+      )}
+      {(!searching || offline.length > 0) && (
+        <FriendGroup label={STATUS_LABEL['offline']} friends={offline} onDoubleClick={handleDoubleClick} forceOpen={searching} />
+      )}
     </div>
   )
 }

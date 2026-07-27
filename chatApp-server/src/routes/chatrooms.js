@@ -3,6 +3,7 @@ const router = express.Router()
 const authMiddleware = require('../middleware/auth')
 const ChatRoom = require('../models/ChatRoom')
 const Message = require('../models/Message')
+const { getVisibleStatus } = require('../onlineUsers')
 
 // 채팅방 생성 or 기존 방 반환 - 나갔던 방이면 leftParticipants에서 제거
 router.post('/', authMiddleware, async (req, res) => {
@@ -87,7 +88,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
     // 나간 방도 일단 다 가져옴 (leftParticipants 필터 제거)
     const allRooms = await ChatRoom.find({ 'participants.user': userId })
-      .populate('participants.user', 'username email')
+      .populate('participants.user', 'username email avatar customStatus')
       .sort({ updatedAt: -1 })
 
     const roomsWithUnread = []
@@ -121,7 +122,20 @@ router.get('/', authMiddleware, async (req, res) => {
         senderId: { $ne: userId }
       })
 
-      roomsWithUnread.push({ ...room.toObject(), unreadCount })
+      // 참여자별 접속 상태 부여 (customStatus는 노출하지 않음)
+      const roomObj = room.toObject()
+      roomObj.participants = roomObj.participants.map(p => {
+        const { customStatus, ...userRest } = p.user || {}
+        return {
+          ...p,
+          user: {
+            ...userRest,
+            status: getVisibleStatus(String(p.user?._id), customStatus)
+          }
+        }
+      })
+
+      roomsWithUnread.push({ ...roomObj, unreadCount })
     }
 
     res.json(roomsWithUnread)

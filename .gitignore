@@ -3,6 +3,7 @@ node_modules/
 .env.*
 dist/
 dist-check/
+dist-verify/
 build-verify-*/
 build/
 release/

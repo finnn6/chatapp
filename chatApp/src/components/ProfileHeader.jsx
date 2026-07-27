@@ -27,10 +27,10 @@ const ProfileHeader = () => {
   const [status, setStatus] = useState('online')
   const TOTAL_AVATARS = 27
   const STATUS_LABEL = {
-    online: '온라인',
-    away: '자리비움',
-    invisible: '오프라인',
-    offline: '오프라인',
+    online: '🟢 온라인',
+    away: '🟡 자리비움',
+    invisible: '⚫ 오프라인',
+    offline: '⚫ 오프라인',
   }
 
   const handleAvatarSelect = async (avatarNumber) => {
