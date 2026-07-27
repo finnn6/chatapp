@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { API_URL } from '@/lib/config'
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -18,7 +19,7 @@ const Login = () => {
         <p className="text-muted-foreground mb-6">로그인하여 계속하세요</p>
 
         <Button
-          onClick={() => window.location.href = 'http://localhost:3001/auth/google'}
+          onClick={() => window.location.href = `${API_URL}/auth/google`}
           variant="secondary"
           className="w-full h-11 flex items-center justify-center gap-3"
         >

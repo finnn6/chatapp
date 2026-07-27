@@ -21,9 +21,11 @@ const server = http.createServer(app);
 // MongoDB 연결 실행
 connectDB();
 
-// CORS 설정 (Electron에서 접근 가능하게)
+// CORS 설정
+const allowedOrigins = ['http://localhost:5173', process.env.CLIENT_URL].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: allowedOrigins,
   credentials: true
 }));
 
@@ -44,7 +46,7 @@ const User = require('./models/User');
 // Socket.io 설정
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173'],
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -54,7 +56,7 @@ app.set('io', io);   // ⭐ 라우터에서 io 쓸 수 있게
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3001/auth/google/callback'
+  callbackURL: `${process.env.SERVER_URL || 'http://localhost:3001'}/auth/google/callback`
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ googleId: profile.id });

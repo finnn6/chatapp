@@ -1,7 +1,8 @@
 import ky from 'ky'
+import { API_URL } from './config'
 
 const api = ky.create({
-  prefixUrl: 'http://localhost:3001',
+  prefixUrl: API_URL,
   hooks: {
     beforeRequest: [
       request => {

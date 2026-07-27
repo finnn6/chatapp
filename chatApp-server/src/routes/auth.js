@@ -15,7 +15,7 @@ router.get('/google/callback',
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
-    res.redirect(`http://localhost:5173/auth/google?token=${token}`);
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/google?token=${token}`);
   }
 );
 
