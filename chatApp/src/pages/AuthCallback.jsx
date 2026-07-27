@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ky from 'ky';
 import { useAuth } from '@/context/AuthContext';
+import { API_URL } from '@/lib/config';
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -12,7 +13,7 @@ export default function AuthCallback() {
    
     if (token) {
       localStorage.setItem('token', token)
-      ky.get('http://localhost:3001/api/users/me', {
+      ky.get(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

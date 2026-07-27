@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import ky from 'ky';
+import { API_URL } from '@/lib/config';
 
 const AuthContext = createContext()
 
@@ -11,7 +12,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (token) {
       // 토큰으로 유저 정보 가져오기
-      ky.get('http://localhost:3001/api/users/me', {
+      ky.get(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

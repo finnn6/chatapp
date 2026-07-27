@@ -22,8 +22,18 @@ const server = http.createServer(app);
 connectDB();
 
 // CORS 설정 (Electron에서 접근 가능하게)
+const allowedOrigins = ['http://localhost:5173', process.env.CLIENT_URL].filter(Boolean);
+
+// 패키징된 Electron 앱은 file:// 에서 요청해서 Origin이 없거나 'null' 이다 → 허용
+const corsOrigin = (origin, callback) => {
+  if (!origin || origin === 'null' || allowedOrigins.includes(origin)) {
+    return callback(null, true);
+  }
+  return callback(new Error('CORS 차단: ' + origin));
+};
+
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: corsOrigin,
   credentials: true
 }));
 
@@ -44,7 +54,7 @@ const User = require('./models/User');
 // Socket.io 설정
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173'],
+    origin: corsOrigin,
     credentials: true
   }
 });
@@ -54,7 +64,7 @@ app.set('io', io);   // ⭐ 라우터에서 io 쓸 수 있게
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3001/auth/google/callback'
+  callbackURL: `${process.env.SERVER_URL || 'http://localhost:3001'}/auth/google/callback`
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ googleId: profile.id });

@@ -1,4 +1,8 @@
 import { Button } from '@/components/ui/button'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
+import { API_URL } from '@/lib/config'
+import api from '@/lib/api'
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -10,6 +14,27 @@ const GoogleIcon = () => (
 )
 
 const Login = () => {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  const handleLogin = async () => {
+    // 데스크톱 앱: 시스템 브라우저로 인증 → 루프백으로 토큰 수신
+    if (window.electron?.login) {
+      try {
+        const token = await window.electron.login(API_URL)
+        localStorage.setItem('token', token)
+        const data = await api.get('api/users/me').json()   // 토큰은 api 훅이 자동 첨부
+        login(data.user)
+        navigate('/')
+      } catch (err) {
+        console.error('로그인 실패', err)
+      }
+    } else {
+      // 웹: 기존 리다이렉트 흐름
+      window.location.href = `${API_URL}/auth/google`
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="bg-card pixel-box p-8 w-[480px] text-center">
@@ -18,7 +43,7 @@ const Login = () => {
         <p className="text-muted-foreground mb-6">로그인하여 계속하세요</p>
 
         <Button
-          onClick={() => window.location.href = 'http://localhost:3001/auth/google'}
+          onClick={handleLogin}
           variant="secondary"
           className="w-full h-11 flex items-center justify-center gap-3"
         >

@@ -10,17 +10,40 @@
     "build:app": "npm run build && electron-builder"
   },
   "keywords": [],
-  "author": "",
+  "author": "finnn6",
   "license": "ISC",
-  "description": "",
+  "description": "도트풍 채팅 앱",
   "devDependencies": {
     "@types/node": "^25.5.2",
     "@vitejs/plugin-react": "^4.7.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "electron": "^40.0.0",
+    "electron-builder": "^25.1.8",
     "vite": "^6.4.1",
     "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "com.finnn6.dotchat",
+    "productName": "DotChat",
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
