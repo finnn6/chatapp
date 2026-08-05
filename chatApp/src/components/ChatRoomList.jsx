@@ -90,7 +90,7 @@ const ChatRoomList = ({ query = '' }) => {
 
   return (
     <>
-    <NotificationBanner/>
+    {/* <NotificationBanner/> */}
     <div className="flex flex-col">
       {filteredRooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
