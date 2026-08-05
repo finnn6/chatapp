@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useSocket } from '@/context/SocketContext'
 import { useChat } from '@/context/ChatContext'
+import NotificationBanner from './NotificationBanner'
 
 const STATUS_DOT = {
   online: 'bg-pixel-cyan',
@@ -88,6 +89,8 @@ const ChatRoomList = ({ query = '' }) => {
   }
 
   return (
+    <>
+    <NotificationBanner/>
     <div className="flex flex-col">
       {filteredRooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
@@ -134,6 +137,7 @@ const ChatRoomList = ({ query = '' }) => {
         })
       )}
     </div>
+    </>
   )
 }
 

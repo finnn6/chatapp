@@ -3,6 +3,7 @@ import { useSocket } from './SocketContext'
 import { useAuth } from './AuthContext'
 import api from '../lib/api'
 import { useNavigate } from 'react-router-dom'
+import { notify } from '../lib/notify'
 
 const ChatContext = createContext(null)
 
@@ -42,10 +43,10 @@ export const ChatProvider = ({ children }) => {
 
     const handleRoomUpdate = async ({ roomId, lastMessage, senderId, senderName }) => {
       const isMine = String(senderId) === String(user._id)
+      console.log('[room:update]', { roomId, senderName, isMine, electron: !!window.electron })
 
       let wasWatching = false
-
-      // 남이 보낸 거면 알림 요청 (Electron만)
+      // 남이 보낸 거면 알림 요청
       if (!isMine && window.electron?.notifyMessage) {
         try {
           const result = await window.electron.notifyMessage({
@@ -58,6 +59,15 @@ export const ChatProvider = ({ children }) => {
           console.error('알림 실패:', err)
         }
       }
+      // 웹 용 알림 추가
+      // if (!isMine) {
+      //   if (window.electron?.notifyMessage) {
+      //     const result = await window.electron.notifyMessage({ roomId, senderName, text: lastMessage })
+      //     wasWatching = result.wasWatching
+      //   } else {
+      //     notify({ title: senderName, body: lastMessage, roomId })
+      //   }
+      // }
 
       setRooms(prev => {
         const exists = prev.some(r => r._id === roomId)
@@ -72,7 +82,6 @@ export const ChatProvider = ({ children }) => {
         const updated = prev.map(room => {
           if (room._id !== roomId) return room
 
-          const isMine = String(senderId) === String(user._id)
           return {
             ...room,
             lastMessage,

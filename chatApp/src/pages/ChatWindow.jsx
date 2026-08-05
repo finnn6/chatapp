@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui'
 import { Input } from '@/components/ui'
@@ -22,15 +22,21 @@ const ChatWindow = () => {
   const [typingUsers, setTypingUsers] = useState({})   // { userId: username }
   const typingTimeoutsRef = useRef({})   // { userId: timeout }
 
+  const handleTypingStop = useCallback(({ userId }) => {
+    clearTimeout(typingTimeoutsRef.current[userId])
+    delete typingTimeoutsRef.current[userId]
+    setTypingUsers(prev => {
+      if (!(userId in prev)) return prev      // 변화 없으면 그대로 반환
+      const next = { ...prev }
+      delete next[userId]
+      return next
+    })
+  }, [])
+
   // 메시지 히스토리 + 방 정보 불러오기
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 채팅창 열었을 때 읽음 처리
-        // api.patch(`api/chatrooms/${roomId}/read`).catch(err =>
-        //   console.error('읽음 처리 실패', err)
-        // )
-
         const [messages, room] = await Promise.all([
           api.get(`api/chatrooms/${roomId}/messages`).json(),
           api.get(`api/chatrooms/${roomId}`).json()
@@ -45,33 +51,48 @@ const ChatWindow = () => {
     fetchData()
   }, [roomId])
 
+  // 방 입퇴장 — roomId 바뀔 때만
   useEffect(() => {
     if (!socket) return
-
     socket.emit('room:join', roomId)
-    socket.emit('room:read', roomId)   // 방 열 때 읽음
+    socket.emit('room:read', roomId)
+    return () => { socket.emit('room:leave', roomId) }
+  }, [socket, roomId])
+
+  // 메시지 수신 — 리스너만
+  useEffect(() => {
+    if (!socket) return
 
     const handleMessage = (message) => {
       setMessages(prev => [...prev, message])
 
-      // 보낸 사람 인디케이터 제거
       const senderId = String(message.senderId?._id || message.senderId)
       handleTypingStop({ userId: senderId })
 
-      // 보는 중 메시지 왔을 때 읽음. 내 메시지가 아닌지 판별 & 실제 창을 보고있을 때 판별
-      const isMine = senderId === String(user._id)
-      if (!isMine && document.hasFocus()) {
+      if (senderId !== String(user._id) && document.hasFocus()) {
         socket.emit('room:read', roomId)
       }
     }
 
     socket.on('message', handleMessage)
+    return () => socket.off('message', handleMessage)
+  }, [socket, roomId, user?._id, handleTypingStop])
 
-    return () => {
-      socket.emit('room:leave', roomId)
-      socket.off('message', handleMessage)
+  // 웹에서 뒤로가기 시에도 메시지 읽음 처리
+  useEffect(() => {
+    if (!socket) return
+
+    const markRead = () => {
+      if (document.hasFocus()) socket.emit('room:read', roomId)
     }
-  }, [socket, roomId, user?._id])
+
+    window.addEventListener('focus', markRead)
+    document.addEventListener('visibilitychange', markRead)
+    return () => {
+      window.removeEventListener('focus', markRead)
+      document.removeEventListener('visibilitychange', markRead)
+    }
+  }, [socket, roomId])
 
   // 새 메시지 오면 스크롤 아래로
   useEffect(() => {
@@ -142,14 +163,14 @@ const ChatWindow = () => {
       }, 5000)
     }
 
-    const handleTypingStop = ({ userId }) => {
-      clearTimeout(typingTimeoutsRef.current[userId])
-      setTypingUsers(prev => {
-        const next = { ...prev }
-        delete next[userId]
-        return next
-      })
-    }
+    // const handleTypingStop = ({ userId }) => {
+    //   clearTimeout(typingTimeoutsRef.current[userId])
+    //   setTypingUsers(prev => {
+    //     const next = { ...prev }
+    //     delete next[userId]
+    //     return next
+    //   })
+    // }
 
     socket.on('typing:start', handleTypingStart)
     socket.on('typing:stop', handleTypingStop)
@@ -227,10 +248,10 @@ const ChatWindow = () => {
 
         {/* 텍스트 입력 */}
         <div className="flex-1 flex flex-col p-2 gap-2">
-          <div className="flex gap-2 text-xs text-muted-foreground">
+          {/* <div className="flex gap-2 text-xs text-muted-foreground">
             <button className="hover:text-pixel-mint">A</button>
             <button className="hover:text-pixel-mint">😊</button>
-          </div>
+          </div> */}
           <div className="flex gap-2">
             <Input
               value={inputValue}
